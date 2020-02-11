@@ -1,12 +1,15 @@
 {
-  "name": "electron-webpack-quick-start",
+  "name": "DesktopPoC",
+  "description": "Desktop BrowserView proof of concept",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
     "dist": "yarn compile && electron-builder",
-    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null"
+    "dist:dir": "yarn dist --dir -c.compression=store -c.mac.identity=null",
+    "pack": "yarn compile && electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "source-map-support": "^0.5.12"
