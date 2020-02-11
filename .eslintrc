@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "./.eslintrc-webapp.json",
+    "plugin:eslint-comments/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "settings": {
+    "import/resolver": "node"
+  },
+  "rules": {
+    "import/no-commonjs": 2,
+    "indent": [2, 2, {"SwitchCase": 0}],
+    "no-console": 0,
+    "no-process-env": 0,
+    "no-underscore-dangle": 1,
+    "no-var": 2,
+    "react/jsx-indent": [2, 2],
+    "react/jsx-indent-props": [2, 2],
+    "react/no-find-dom-node": 2,
+    "react/no-set-state": 1,
+    "react/require-optimization": 0
+  }
+}
