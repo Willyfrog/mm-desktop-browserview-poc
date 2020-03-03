@@ -6,13 +6,12 @@
 /* eslint-disable quotes */
 /* eslint-disable indent */
 /* eslint-disable semi */
-/* eslint-disable func-names */
 
 module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.js?$/,
         loader: "babel-loader",
         options: {
           include: ["@babel/plugin-proposal-class-properties"]
@@ -21,6 +20,6 @@ module.exports = {
     ]
   },
   resolve: {
-      extensions: ['.js', 'jsx']
+      extensions: ['.js']
     }
 };

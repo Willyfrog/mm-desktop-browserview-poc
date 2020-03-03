@@ -1,62 +1,134 @@
-'use strict'
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+'use strict';
 
-import { app, BrowserWindow } from 'electron'
-import * as path from 'path'
-import { format as formatUrl } from 'url'
+import * as path from 'path';
+import {format as formatUrl} from 'url';
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
+import {app, BrowserWindow, ipcMain, Notification} from 'electron';
+
+import contextMenu from 'electron-context-menu';
+import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
+
+import {createServers} from './mattermost.js';
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-let mainWindow
+let mainWindow;
 
 function createMainWindow() {
-  const window = new BrowserWindow({webPreferences: {nodeIntegration: true}})
+  contextMenu();
+
+  const window = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+    }});
 
   if (isDevelopment) {
-    window.webContents.openDevTools()
+    installExtension(
+      REACT_DEVELOPER_TOOLS,
+    ).then(
+      (name) => console.log(`Added Extension:  ${name}`),
+    ).catch((err) => console.log('An error occurred: ', err));
+    window.webContents.openDevTools();
   }
 
   if (isDevelopment) {
-    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
-  }
-  else {
+    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
+  } else {
     window.loadURL(formatUrl({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file',
-      slashes: true
-    }))
+      slashes: true,
+    }));
   }
 
   window.on('closed', () => {
-    mainWindow = null
-  })
+    mainWindow = null;
+  });
 
   window.webContents.on('devtools-opened', () => {
-    window.focus()
+    window.focus();
     setImmediate(() => {
-      window.focus()
-    })
-  })
+      window.focus();
+    });
+  });
 
-  return window
+  window.webContents.on('before-input-event',
+    (event, input) => {
+      console.log(input);
+    });
+
+  const serverConfig = [
+    {name: 'community', serverUrl: 'http://localhost:9005'},
+    {name: 'test', serverUrl: 'https://mysql.test.mattermost.com'},
+    {name: 'taco', serverUrl: 'https://subpath.test.mattermost.com'},
+  ];
+
+  //const serverConfig = [{name: 'community', serverUrl: 'https://community-release.mattermost.com'}];
+
+  const servers = createServers(serverConfig, window);
+
+  ipcMain.on('switch-tabs', (event, content) => {
+    const {tabIndex} = content;
+    if (typeof tabIndex !== 'undefined') {
+      servers.forEach((server, index) => {
+        if (index === tabIndex) {
+          server.show(true);
+        } else {
+          server.hide();
+        }
+      });
+    }
+  });
+
+  // sample notification
+  const n = new Notification({
+    title: 'Started!',
+    subtitle: 'Dpoc started',
+    body: 'hey this is a custom notification! with a lot of text to display',
+  });
+  n.on('click', () => {
+    console.log('user clicked on the notification');
+  });
+  n.show();
+
+  // handle messages from webapp
+  ipcMain.on('webcontentsMessage', (_event, origin, originalData) => {
+    const data = {type: 'unknown', message: '', ...originalData};
+    console.log(`Got an event:\n
+    origin: ${origin}\n
+    type: ${data.type}\n
+    msg: ${data.message}
+    `);
+    servers.forEach((server) => {
+      if (server.sameOrigin(origin)) {
+        server.handleMessage(data);
+      }
+    });
+  });
+
+  return window;
 }
 
 // quit application when all windows are closed
 app.on('window-all-closed', () => {
   // on macOS it is common for applications to stay open until the user explicitly quits
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
-})
+});
 
 app.on('activate', () => {
   // on macOS it is common to re-create a window even after all windows have been closed
   if (mainWindow === null) {
-    mainWindow = createMainWindow()
+    mainWindow = createMainWindow();
   }
-})
+});
 
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
-  mainWindow = createMainWindow()
-})
+  mainWindow = createMainWindow();
+});
