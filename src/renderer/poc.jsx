@@ -7,13 +7,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {ipcRenderer} from 'electron';
 
 export default class POC extends React.PureComponent {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
+
     this.state = {active: 0};
   }
 
   selectTab = (tabIndex) => {
     return (() => {
+      // eslint-disable-next-line react/no-set-state
       this.setState({active: tabIndex});
       ipcRenderer.send('switch-tabs', {tabIndex});
     });

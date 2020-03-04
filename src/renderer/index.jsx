@@ -2,13 +2,12 @@
 // See LICENSE.txt for license information.
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {remote} from 'electron';
 
 import Poc from './poc.jsx';
 
 const content = document.getElementById('app');
 
 ReactDOM.render(
-  <Poc window={remote.getCurrentWindow()}/>,
+  <Poc/>,
   content,
 );
