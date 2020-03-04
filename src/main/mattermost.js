@@ -54,13 +54,14 @@ export class Server {
   }
 
   show = (requestedVisibility) => {
-    if ((requestedVisibility || typeof requestedVisibility === 'undefined') && !this.isVisible) {
+    const request = typeof requestedVisibility === 'undefined' ? true : requestedVisibility;
+    if (request && !this.isVisible) {
       this.win.addBrowserView(this.view);
       this.setBounds(getWindowBoundaries(this.win));
-    } else if (!requestedVisibility && this.isVisible) {
+    } else if (!request && this.isVisible) {
       this.win.removeBrowserView(this.view);
     }
-    this.isVisible = requestedVisibility;
+    this.isVisible = request;
   }
 
   hide = () => {
@@ -113,6 +114,12 @@ export class Server {
   }
   postMessage = (msgType, msgData) => {
     this.view.webContents.send('webappMessage', msgType, msgData);
+  }
+  sendKeyInputEvent = (input) => {
+    this.view.webContents.focus();
+    this.view.webContents.sendInputEvent({type: 'keyDown', ...input});
+    this.view.webContents.sendInputEvent({type: 'char', ...input});
+    this.view.webContents.sendInputEvent({type: 'keyUp', ...input});
   }
 }
 
@@ -189,3 +196,12 @@ function setServersBounds(servers, boundary) {
   });
 }
 
+export function getActiveServer(servers) {
+  for (let index = 0; index < servers.length; index++) {
+    const server = servers[index];
+    if (server.isVisible) {
+      return server;
+    }
+  }
+  throw new Error('No visible server');
+}

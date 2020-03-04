@@ -10,7 +10,7 @@ import {app, BrowserWindow, ipcMain, Notification} from 'electron';
 import contextMenu from 'electron-context-menu';
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 
-import {createServers} from './mattermost.js';
+import {createServers, getActiveServer} from './mattermost.js';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -56,11 +56,6 @@ function createMainWindow() {
     });
   });
 
-  window.webContents.on('before-input-event',
-    (event, input) => {
-      console.log(input);
-    });
-
   const serverConfig = [
     {name: 'community', serverUrl: 'http://localhost:9005'},
     {name: 'test', serverUrl: 'https://mysql.test.mattermost.com'},
@@ -83,6 +78,25 @@ function createMainWindow() {
       });
     }
   });
+
+  window.webContents.on('before-input-event',
+    (event, input) => {
+      // sendinputevent changes on electron v7
+      // all webapp shortcuts should be listed here, since that would change
+      // in the future it would be great to have that info from the webapp itself
+      if (input.key === 'k' && (input.meta || input.control)) {
+        event.preventDefault();
+        const server = getActiveServer(servers);
+        const keyCode = 'K';
+        const modifiers = [];
+        if (process.platform === 'darwin') {
+          modifiers.push('meta');
+        } else {
+          modifiers.push('control');
+        }
+        server.sendKeyInputEvent({modifiers, keyCode});
+      }
+    });
 
   // sample notification
   const n = new Notification({
