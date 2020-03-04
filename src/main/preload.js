@@ -3,10 +3,16 @@
 // eslint-disable-next-line import/no-commonjs
 const {ipcRenderer} = require('electron');
 
+const ignoreList = ['webpackClose', 'webappMessage'];
+
 // this will just pass any message from the app to the ipcMain
 // notice it will also catch messages from the server to the webapp
 // we might want to figure out a way to filter those.
 function handleMessage(event) {
+  if (ignoreList.includes(event.data.type)) {
+    return;
+  }
+
   console.log(event);
   ipcRenderer.send('webcontentsMessage', event.origin, event.data);
 }
