@@ -1,33 +1,15 @@
-# electron-webpack-quick-start
-> A bare minimum project structure to get started developing with [`electron-webpack`](https://github.com/electron-userland/electron-webpack).
+# mattermost browserview proof of concept
+  based on electron 6 (to match desktop), this aims to foresee basic changes on architecture and feature handling
 
-Thanks to the power of `electron-webpack` this template comes packed with...
-
-* Use of [`webpack-dev-server`](https://github.com/webpack/webpack-dev-server) for development
-* HMR for both `renderer` and `main` processes
-* Use of [`babel-preset-env`](https://github.com/babel/babel-preset-env) that is automatically configured based on your `electron` version
-* Use of [`electron-builder`](https://github.com/electron-userland/electron-builder) to package and build a distributable electron application
-
-Make sure to check out [`electron-webpack`'s documentation](https://webpack.electron.build/) for more details.
+  what's being checkec:
+  - use of multiple browserviews to manage multiple connection to different servers. There is one there that is always unnaccessible as part of the test.
+  - relationship between main and renderer processes once we move most of the handling to the main process (as oposed to webview tag that was on renderer)
+  - notification management
+  - input management
 
 ## Getting Started
-Simply clone down this repository, install dependencies, and get started on your application.
 
 The use of the [yarn](https://yarnpkg.com/) package manager is **strongly** recommended, as opposed to using `npm`.
-
-```bash
-# create a directory of your choice, and copy template using curl
-mkdir new-electron-webpack-project && cd new-electron-webpack-project
-curl -fsSL https://github.com/electron-userland/electron-webpack-quick-start/archive/master.tar.gz | tar -xz --strip-components 1
-
-# or copy template using git clone
-git clone https://github.com/electron-userland/electron-webpack-quick-start.git
-cd electron-webpack-quick-start
-rm -rf .git
-
-# install dependencies
-yarn
-```
 
 ### Development Scripts
 
@@ -44,3 +26,14 @@ yarn dist
 # `yarn compile` & create unpacked build with electron-builder
 yarn dist:dir
 ```
+
+### Other
+
+Thanks to the power of `electron-webpack` this template comes packed with...
+
+* Use of [`webpack-dev-server`](https://github.com/webpack/webpack-dev-server) for development
+* HMR for both `renderer` and `main` processes
+* Use of [`babel-preset-env`](https://github.com/babel/babel-preset-env) that is automatically configured based on your `electron` version
+* Use of [`electron-builder`](https://github.com/electron-userland/electron-builder) to package and build a distributable electron application
+
+Make sure to check out [`electron-webpack`'s documentation](https://webpack.electron.build/) for more details.

@@ -7,8 +7,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {ipcRenderer} from 'electron';
 
 export default class POC extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {active: 0};
+  }
+
   selectTab = (tabIndex) => {
     return (() => {
+      this.setState({active: tabIndex});
       ipcRenderer.send('switch-tabs', {tabIndex});
     });
   };
@@ -17,11 +23,17 @@ export default class POC extends React.PureComponent {
     return (
       <Fragment>
         <div>
-          <Button onClick={this.selectTab(0)}>{'Tab 1'}</Button>
-          <Button onClick={this.selectTab(1)}>{'Tab 2'}</Button>
+          <Button
+            variant={this.state.active === 0 ? 'secondary' : 'light'}
+            onClick={this.selectTab(0)}
+          >{'Tab 1'}</Button>
+          <Button
+            variant={this.state.active === 1 ? 'secondary' : 'light'}
+            onClick={this.selectTab(1)}
+          >{'Tab 2'}</Button>
         </div>
         <div>
-          {"This shouldn't be seen"}
+          {"This shouldn't be seen once loaded, useful for having a gif as a loader mimic?"}
         </div>
       </Fragment>
     );
