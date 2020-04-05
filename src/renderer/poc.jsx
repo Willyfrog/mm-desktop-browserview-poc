@@ -26,7 +26,7 @@ export default class POC extends React.PureComponent {
       <Fragment>
         <div>
           <Button
-            variant={this.state.active === 0 ? 'secondary' : 'light'}
+            variant={this.state.active === 0 ? 'secondary' : 'primary'}
             onClick={this.selectTab(0)}
           >{'Tab 1'}</Button>
           <Button

@@ -44,7 +44,8 @@ export class Server {
     console.log(`[${this.name}] Loading ${loadURL}`);
 
     // copying what webview sends
-    const userAgent = `user agent is: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Electron/6.1.7 Safari/537.36 Mattermost/${app.getVersion()}`;
+    //const userAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Electron/6.1.7 Safari/537.36 Mattermost/${app.getVersion()}`;
+    const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Safari/537.36';
     const loading = this.view.webContents.loadURL(loadURL, {userAgent});
     loading.then((result) => {
       console.log(`[${this.name}] finished loading ${loadURL}: ${result}`);
