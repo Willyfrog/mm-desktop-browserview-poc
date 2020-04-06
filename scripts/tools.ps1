@@ -166,5 +166,14 @@ function Get-NpmDir {
     return $null
 }
 
+function Get-YarnDir {
+    $yarnCommand = Get-Command -name "yarn.cmd"
+    if ([bool]($yarnCommand)) {
+        $yarnPath = Split-Path -Path $yarnCommand.Source
+        return $yarnPath
+    }
+    return $null
+}
+
 # endregion
 

@@ -43,8 +43,8 @@ function Check-Deps {
         # We could have used the builtin Test-Path cmdlet instead but it is
         # tested for folders as well. We need to test for a file existence
         # here.  
-        ![System.IO.File]::Exists("$(Get-NpmDir)\yarn.cmd") -or
-        ![System.IO.File]::Exists("$(Get-NpmDir)\node.exe")) {
+        !(check-command "yarn.cmd") -or
+        !(check-command "node.exe")) {
             if ($verbose) { Print-Error "nodejs/npm dependency missing." }
         $missing += "npm"
     }
@@ -131,7 +131,6 @@ function Install-Deps {
             "npm" {
                 Print-Info "Installing nodejs-lts (with npm)..."
                 choco install nodejs-lts --yes
-                choco install yarn --yes
                 break;
             }
             "jq" {

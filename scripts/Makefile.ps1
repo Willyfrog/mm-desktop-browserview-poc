@@ -78,6 +78,8 @@ function Prepare-Path {
     # Prepend the PATH with signtool dir
     Print-Info "Checking if signtool dir is already in the PATH..."
     $env:Path = "$(Get-SignToolDir)" + ";" + $env:Path
+
+    $env:Path = "$(Get-YarnDir)" + ";" + $env:Path;
 }
 
 function Catch-Interruption {
@@ -106,13 +108,13 @@ function Backup-ComputerState {
     [Environment]::CurrentDirectory = $PWD
 
     # Refresh path because it might have been made durty in the current shell
-    Refresh-Path
+    # Refresh-Path
 }
 
 function Restore-ComputerState {
 
-    Print-Info "Restoring PATH..."
-    $env:Path = $env:COM_DPOC_MAKEFILE_PATH_BACKUP
+    # Print-Info "Restoring PATH..."
+    # $env:Path = $env:COM_DPOC_MAKEFILE_PATH_BACKUP
 
     Print-Info "Restoring current working directory..."
     Pop-location
@@ -152,6 +154,14 @@ function Run-BuildId {
     Print-Info -NoNewLine "Getting build date..."
     $env:COM_DPOC_MAKEFILE_BUILD_DATE = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
     Print " [$env:COM_DPOC_MAKEFILE_BUILD_DATE]"
+
+        # Prepend the PATH with wix dir
+    Print-Info "Checking if wix dir is already in the PATH..."
+    $env:Path = "$(Get-WixDir)" + ";" + $env:Path
+
+    # Prepend the PATH with signtool dir
+    Print-Info "Checking if signtool dir is already in the PATH..."
+    $env:Path = "$(Get-SignToolDir)" + ";" + $env:Path
 
     # Generate build version ids
     # 
@@ -245,18 +255,18 @@ function Run-BuildChangelog {
 
 function Run-BuildElectron {
     Print-Info "Installing nodejs/electron dependencies (running yarn install)..."
-    yarn install
+    yarn.cmd install
     #npm install --prefix="$(Get-RootDir)" "$(Get-RootDir)"
-    Print-Info "Building nodejs/electron code (running yarn run build)..."
-    yarn run build
+    Print-Info "Building nodejs/electron code (running yarn run compile)..."
+    yarn run compile
     #npm run build --prefix="$(Get-RootDir)" "$(Get-RootDir)"
     Print-Info "Packaging nodejs/electron for Windows (running yarn run package:windows)..."
     yarn run package:windows
     #npm run package:windows --prefix="$(Get-RootDir)" "$(Get-RootDir)"
 
-    Print-Info "Cleaning build dir..."
-    Remove-Item "release\win-ia32-unpacked\resources\app.asar.unpacked\" -Force -Recurse
-    Remove-Item "release\win-unpacked\resources\app.asar.unpacked\" -Force -Recurse
+    # Print-Info "Cleaning build dir..."
+    # Remove-Item "dist\win-ia32-unpacked\resources\app.asar.unpacked\" -Force -Recurse
+    # Remove-Item "dist\win-unpacked\resources\app.asar.unpacked\" -Force -Recurse
 }
 
 function Run-BuildForceSignature {
@@ -275,7 +285,7 @@ function Run-BuildForceSignature {
         # src.: https://www.appveyor.com/docs/build-configuration/#secure-variables
         & "appveyor-tools\secure-file" -decrypt "resources\windows\certificate\dpoc-desktop-windows.pfx.enc" -secret "$env:COM_DPOC_MAKEFILE_CERTIFICATE_DECRYPTION_KEY_ENCRYPTED"
 
-        foreach ($archPath in "release\win-unpacked", "release\win-ia32-unpacked") {
+        foreach ($archPath in "dist\win-unpacked", "dist\win-ia32-unpacked") {
 
             # Note: The C++ redistribuable files will be resigned again even if they have a
             # correct signature from Microsoft. Windows doesn't seem to complain, but we
@@ -301,7 +311,7 @@ function Run-BuildForceSignature {
         }
     } elseif (Test-Path 'env:PFX') {
         Print-Info "Signing"
-        foreach ($archPath in "release\win-unpacked", "release\win-ia32-unpacked") {
+        foreach ($archPath in "dist\win-unpacked", "dist\win-ia32-unpacked") {
             # Note: The C++ redistribuable files will be resigned again even if they have a
             # correct signature from Microsoft. Windows doesn't seem to complain, but we
             # don't know whether this is authorized by the Microsoft EULA.
@@ -332,66 +342,66 @@ function Run-BuildForceSignature {
 
 function Run-BuildLicense {
 
-    # Convert license to RTF
-    $licenseTxtFile = "LICENSE.txt";
-    $licenseRtfFile = "resources/windows/license.rtf";
-    $licenseNewParagraph = "\par" + [Environment]::NewLine;
-    $sw = [System.IO.File]::CreateText($licenseRtfFile);
-    $sw.WriteLine("{\rtf1\ansi\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Courier New;}}\pard\qj\f0\fs18");
-    $lineToAdd = "";
-    $gapDetected = 0;
-    # We are relying on introspected C#/.NET rather than the buggy Get-Content
-    # cmdlet because Get-Content considers by default a `-Delimiter` to '\n'
-    # and thus breaks the purpose of the parser.
-    foreach ($line in [System.IO.File]::ReadLines($licenseTxtFile)) {
-        # trim() is equivalent to .replace("\ \s+", "")
-        # We replace one backslash by two. Since the first arg is a regex,
-        # we need to escape it.
-        # src.: https://stackoverflow.com/a/31324570/3514658
-        $sanitizedLine = $line.trim().replace("\\", "\\").replace("{", "\{").replace("}", "\}");
-        # Print previous string gathered if gap detected.
-        if ([string]::IsNullOrEmpty($sanitizedLine)) {
-            $gapDetected++;
-            # For first line keep paragraph definition from document head.
-            if ($gapDetected -eq 1) {
-                $sw.Write($lineToAdd);
-            } elseif ($gapDetected -eq 2) {
-                $sw.Write($licenseNewParagraph + $lineToAdd);
-            } else {
-                $sw.Write($licenseNewParagraph + $lineToAdd + $licenseNewParagraph);
-            }
-            $lineToAdd = "";
-            continue;
-        }
-        # Keep carriage return for first two blocks comprising Copyright and
-        # license name statements.
-        if ($gapDetected -lt 3) {
-            $lineToAdd += $sanitizedLine + $licenseNewParagraph;
-            continue;
-        }
-        # Do not add heading space if the line begins a new paragraph.
-        if ($lineToAdd -eq "") {
-            $lineToAdd += $sanitizedLine;
-            continue;
-        }
-        $lineToAdd += " " + $sanitizedLine;
-    }
-    if ($lineToAdd -ne "") {
-        $sw.Write([Environment]::NewLine + $licenseNewParagraph + $lineToAdd + "\par");
-    }
-    $sw.Close();
+    # # Convert license to RTF
+    # $licenseTxtFile = "LICENSE.txt";
+    # $licenseRtfFile = "resources/windows/license.rtf";
+    # $licenseNewParagraph = "\par" + [Environment]::NewLine;
+    # $sw = [System.IO.File]::CreateText($licenseRtfFile);
+    # $sw.WriteLine("{\rtf1\ansi\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Courier New;}}\pard\qj\f0\fs18");
+    # $lineToAdd = "";
+    # $gapDetected = 0;
+    # # We are relying on introspected C#/.NET rather than the buggy Get-Content
+    # # cmdlet because Get-Content considers by default a `-Delimiter` to '\n'
+    # # and thus breaks the purpose of the parser.
+    # foreach ($line in [System.IO.File]::ReadLines($licenseTxtFile)) {
+    #     # trim() is equivalent to .replace("\ \s+", "")
+    #     # We replace one backslash by two. Since the first arg is a regex,
+    #     # we need to escape it.
+    #     # src.: https://stackoverflow.com/a/31324570/3514658
+    #     $sanitizedLine = $line.trim().replace("\\", "\\").replace("{", "\{").replace("}", "\}");
+    #     # Print previous string gathered if gap detected.
+    #     if ([string]::IsNullOrEmpty($sanitizedLine)) {
+    #         $gapDetected++;
+    #         # For first line keep paragraph definition from document head.
+    #         if ($gapDetected -eq 1) {
+    #             $sw.Write($lineToAdd);
+    #         } elseif ($gapDetected -eq 2) {
+    #             $sw.Write($licenseNewParagraph + $lineToAdd);
+    #         } else {
+    #             $sw.Write($licenseNewParagraph + $lineToAdd + $licenseNewParagraph);
+    #         }
+    #         $lineToAdd = "";
+    #         continue;
+    #     }
+    #     # Keep carriage return for first two blocks comprising Copyright and
+    #     # license name statements.
+    #     if ($gapDetected -lt 3) {
+    #         $lineToAdd += $sanitizedLine + $licenseNewParagraph;
+    #         continue;
+    #     }
+    #     # Do not add heading space if the line begins a new paragraph.
+    #     if ($lineToAdd -eq "") {
+    #         $lineToAdd += $sanitizedLine;
+    #         continue;
+    #     }
+    #     $lineToAdd += " " + $sanitizedLine;
+    # }
+    # if ($lineToAdd -ne "") {
+    #     $sw.Write([Environment]::NewLine + $licenseNewParagraph + $lineToAdd + "\par");
+    # }
+    # $sw.Close();
 }
 
 function Run-BuildMsi {
     Print-Info "Building 32 bits msi installer..."
-    heat.exe dir "release\win-ia32-unpacked\" -o "scripts\msi_installer_files.wxs" -scom -frag -srd -sreg -gg -cg DpocDesktopFiles -t "scripts\msi_installer_files_replace_id.xslt" -dr INSTALLDIR
+    heat.exe dir "dist\win-ia32-unpacked\" -o "scripts\msi_installer_files.wxs" -scom -frag -srd -sreg -gg -cg DpocDesktopFiles -t "scripts\msi_installer_files_replace_id.xslt" -dr INSTALLDIR
     candle.exe -dPlatform=x86 "scripts\msi_installer.wxs" "scripts\msi_installer_files.wxs" -o "scripts\"
-    light.exe "scripts\msi_installer.wixobj" "scripts\msi_installer_files.wixobj" -loc "resources\windows\msi_i18n\en_US.wxl" -o "release\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi" -b "release\win-ia32-unpacked\"
+    light.exe "scripts\msi_installer.wixobj" "scripts\msi_installer_files.wixobj" -loc "resources\windows\msi_i18n\en_US.wxl" -o "dist\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi" -b "dist\win-ia32-unpacked\"
 
     Print-Info "Building 64 bits msi installer..."
-    heat.exe dir "release\win-unpacked\" -o "scripts\msi_installer_files.wxs" -scom -frag -srd -sreg -gg -cg DpocDesktopFiles -t "scripts\msi_installer_files_replace_id.xslt" -t "scripts\msi_installer_files_set_win64.xslt" -dr INSTALLDIR
+    heat.exe dir "dist\win-unpacked\" -o "scripts\msi_installer_files.wxs" -scom -frag -srd -sreg -gg -cg DpocDesktopFiles -t "scripts\msi_installer_files_replace_id.xslt" -t "scripts\msi_installer_files_set_win64.xslt" -dr INSTALLDIR
     candle.exe -dPlatform=x64 "scripts\msi_installer.wxs" "scripts\msi_installer_files.wxs" -o "scripts\"
-    light.exe "scripts\msi_installer.wixobj" "scripts\msi_installer_files.wixobj" -loc "resources\windows\msi_i18n\en_US.wxl" -o "release\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi" -b "release\win-unpacked\"
+    light.exe "scripts\msi_installer.wixobj" "scripts\msi_installer_files.wixobj" -loc "resources\windows\msi_i18n\en_US.wxl" -o "dist\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi" -b "dist\win-unpacked\"
 
     # Only sign the executable and .dll if this is a release and not a pull request
     # check.
@@ -401,22 +411,22 @@ function Run-BuildMsi {
         # Dual signing is not supported on msi files. Is it recommended to sign with 256 hash.
         # src.: https://security.stackexchange.com/a/124685/84134
         # src.: https://social.msdn.microsoft.com/Forums/windowsdesktop/en-us/d4b70ecd-a883-4289-8047-cc9cde28b492#0b3e3b80-6b3b-463f-ac1e-1bf0dc831952
-        signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "release\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi" /d "dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi"
+        signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "dist\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi" /d "dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi"
 
         Print-Info "Signing dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi (waiting for 15 seconds)..."
         Start-Sleep -s 15
-        signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "release\dpoc-desktop-\$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi" /d "dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi"
+        signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "dist\dpoc-desktop-\$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi" /d "dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi"
     } elseif (Test-Path 'env:PFX') {
         Print-Info "Signing dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi (waiting for 15 seconds)..."
         Start-Sleep -s 15
         # Dual signing is not supported on msi files. Is it recommended to sign with 256 hash.
         # src.: https://security.stackexchange.com/a/124685/84134
         # src.: https://social.msdn.microsoft.com/Forums/windowsdesktop/en-us/d4b70ecd-a883-4289-8047-cc9cde28b492#0b3e3b80-6b3b-463f-ac1e-1bf0dc831952
-        signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "release\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi" /d "release\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi"
+        signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "dist\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi" /d "dist\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x86.msi"
 
         Print-Info "Signing dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi (waiting for 15 seconds)..."
         Start-Sleep -s 15
-        signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "release\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi" /d "release\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi"
+        signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 "dist\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi" /d "dist\dpoc-desktop-$($env:COM_DPOC_MAKEFILE_BUILD_ID)-x64.msi"
     } else {
         Print-Info "Not signing msi"
     }
@@ -443,7 +453,7 @@ function Remove-Cert {
 
 function Run-Build {
     Check-Deps -Verbose -Throwable
-    Prepare-Path
+    # Prepare-Path
     Get-Cert
     Run-BuildId
     Run-BuildChangelog
@@ -456,7 +466,7 @@ function Run-Build {
 
 function Run-Test {
     Check-Deps -Verbose -Throwable
-    Prepare-Path
+    # Prepare-Path
     yarn test
 }
 #endregion
