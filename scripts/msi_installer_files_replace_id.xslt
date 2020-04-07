@@ -11,7 +11,7 @@ xmlns:wi="http://schemas.microsoft.com/wix/2006/wi">
   <!-- src.: https://stackoverflow.com/a/19259647/3514658 -->
   <xsl:template match="wi:ComponentGroup[@Id='DpocDesktopFiles']/wi:Component/wi:File[contains(@Source,'dpoc.exe')]">
      <xsl:copy>
-        <xsl:attribute name="Id">MattermostDesktopEXE</xsl:attribute>
+        <xsl:attribute name="Id">DpocDesktopEXE</xsl:attribute>
         <xsl:copy-of select="@*[name()!='Id']"/>
         <xsl:apply-templates />
      </xsl:copy>
