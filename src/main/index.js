@@ -147,4 +147,4 @@ app.on('ready', () => {
   mainWindow = createMainWindow();
 });
 
-app.setAppUserModelId(process.execPath);
+app.setAppUserModelId('Mattermost.Dpoc');

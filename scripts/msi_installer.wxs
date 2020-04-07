@@ -103,7 +103,9 @@
                   Name="Dpoc"
                   Description="Dpoc"
                   Target="[#desktop_poc.exe]"
-                  WorkingDirectory="INSTALLDIR"/>
+                  WorkingDirectory="INSTALLDIR">
+            <ShortcutProperty Key="System.AppUserModel.ID" Value="Mattermost.Dpoc"/>
+          </Shortcut>
         <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\Dpoc\Desktop" Type="string" Value="" KeyPath="yes" />
       </Component>
