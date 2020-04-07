@@ -990,6 +990,5 @@ The [Installer] will complete the installation of [ProductName] on your computer
     <Binary Id="ModifyIcon" SourceFile="../resources/windows/msi_modify.ico" />
     <Binary Id="RepairIcon" SourceFile="../resources/windows/msi_repair.ico" />
     <Binary Id="RemoveIcon" SourceFile="../resources/windows/msi_remove.ico" />
-    <Property Id="ComponentDownload">https://releases.dpoc.com/desktop/0.0.0/dpoc-desktop-0.0.0-$(var.Platform).msi</Property>
   </Product>
 </Wix>
