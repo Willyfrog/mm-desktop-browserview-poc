@@ -305,9 +305,9 @@ function Run-BuildForceSignature {
 
             Print-Info "Signing Dpoc.exe (waiting for 2 * 15 seconds)..."
             Start-Sleep -s 15
-            signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha1 /td sha1 "$archPath\Dpoc.exe"
+            signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha1 /td sha1 "$archPath\desktop_poc.exe"
             Start-Sleep -s 15
-            signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 /as "$archPath\Dpoc.exe"
+            signtool.exe sign /f "resources\windows\certificate\dpoc-desktop-windows.pfx" /p "$env:COM_DPOC_MAKEFILE_CERTIFICATE_PRIVATE_KEY_ENCRYPTED" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 /as "$archPath\desktop_poc.exe"
         }
     } elseif (Test-Path 'env:PFX') {
         Print-Info "Signing"
@@ -330,9 +330,9 @@ function Run-BuildForceSignature {
 
             Print-Info "Signing Dpoc.exe (waiting for 2 * 15 seconds)..."
             Start-Sleep -s 15
-            signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha1 /td sha1 "$archPath\Dpoc.exe"
+            signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha1 /td sha1 "$archPath\desktop_poc.exe"
             Start-Sleep -s 15
-            signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 /as "$archPath\Dpoc.exe"
+            signtool.exe sign /f "./dpoc-desktop-windows.pfx" /p "$env:PFX_KEY" /tr "http://timestamp.digicert.com" /fd sha256 /td sha256 /as "$archPath\desktop_poc.exe"
         }
     } else {
         Print-Info "DLLs not signed"
