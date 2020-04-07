@@ -20,11 +20,11 @@
   <?if $(var.Platform) = x64 ?>
   <?define Win64 = "yes" ?>
   <?define ProgramFilesVersion = "ProgramFiles64Folder" ?>
-  <?define ReleaseDir = "../release/win-unpacked" ?>
+  <?define ReleaseDir = "../dist/win-unpacked" ?>
   <?else ?>
   <?define Win64 = "no" ?>
   <?define ProgramFilesVersion = "ProgramFilesFolder" ?>
-  <?define ReleaseDir = "../release/win-ia32-unpacked" ?>
+  <?define ReleaseDir = "../dist/win-ia32-unpacked" ?>
   <?endif ?>
   <!-- 
   The product GUID must not be changed except when:
