@@ -76,16 +76,6 @@
                 </ShortcutProperty>
               </Shortcut>
             </Component>
-            <Directory Id="GPOFiles" Name="gpo">
-              <Component Id="GPODefinitionFile" Guid="BE30D350-8727-41CB-9F8D-9E0B7B9572A9" Win64="$(var.Win64)">
-                <File Id="DpocAdmxFile" Name="dpoc.admx" Source="../resources/windows/gpo/dpoc.admx" KeyPath="yes" />
-              </Component>
-              <Directory Id="GPOUSEnglishFiles" Name="en-US">
-                <Component Id="GPOUSEnglishFiles" Guid="1D49A24E-769C-4AF0-863E-0648628A4554" Win64="$(var.Win64)">
-                  <File Id="DpocAdmlFile" Name="dpoc.adml" Source="../resources/windows/gpo/en-US/dpoc.adml" KeyPath="yes" />
-                </Component>
-              </Directory>
-            </Directory>
           </Directory>
         </Directory>
       </Directory>
