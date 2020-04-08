@@ -100,7 +100,7 @@
     <DirectoryRef Id="ProgramMenuDir">
       <Component Id="ProgramMenuDir" Guid="CA5C6FAF-C004-4909-AF1C-AA0A5F53C245">
         <Shortcut Id="ApplicationStartMenuShortcut" Name="Dpoc" Description="Dpoc" Target="[INSTALLDIR]desktop_poc.exe" WorkingDirectory="INSTALLDIR">
-          <ShortcutProperty Key="System.AppUserModel.ID" Value="Mattermost.Dpoc" />
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="Mattermost.desktop_poc" />
         </Shortcut>
         <RemoveFolder Id="ProgramMenuDir" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\Dpoc\Desktop" Type="string" Value="" KeyPath="yes" />

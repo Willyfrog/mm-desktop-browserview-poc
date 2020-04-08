@@ -103,6 +103,7 @@ function createMainWindow() {
     title: 'Started!',
     subtitle: 'Dpoc started',
     body: 'hey this is a custom notification! with a lot of text to display',
+    timeoutType: 'never',
   });
   n.on('click', () => {
     console.log('user clicked on the notification');
@@ -147,4 +148,4 @@ app.on('ready', () => {
   mainWindow = createMainWindow();
 });
 
-app.setAppUserModelId('Mattermost.Dpoc');
+app.setAppUserModelId('Mattermost.desktop_poc');
