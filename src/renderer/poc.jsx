@@ -9,7 +9,7 @@ import {ipcRenderer} from 'electron';
 export default class POC extends React.PureComponent {
   constructor() {
     super();
-
+    this.notifications = [];
     this.state = {active: 0};
   }
 
@@ -18,6 +18,10 @@ export default class POC extends React.PureComponent {
       // eslint-disable-next-line react/no-set-state
       this.setState({active: tabIndex});
       ipcRenderer.send('switch-tabs', {tabIndex});
+      Notification.requestPermission();
+      // eslint-disable-next-line no-new
+      const c = new Notification(`selecting tab ${tabIndex}`, {body: 'Selected!'});
+      this.notifications.push(c);
     });
   };
 

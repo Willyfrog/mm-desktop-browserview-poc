@@ -50,5 +50,18 @@
         "@/preload.js"
       ]
     }
+  },
+  "build": {
+    "productName": "Desktop PoC",
+    "appId": "mattermost.dpoc",
+    "win": {
+      "target":  [{
+        "target": "msi",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }]
+    }
   }
 }

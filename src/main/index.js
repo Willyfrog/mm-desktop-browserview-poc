@@ -16,6 +16,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow;
+const notificationList = []; // let's try to keep track of notifications
 
 function createMainWindow() {
   contextMenu();
@@ -110,6 +111,8 @@ function createMainWindow() {
   });
   n.show();
 
+  notificationList.push(n);
+
   // handle messages from webapp
   ipcMain.on('webcontentsMessage', (_event, origin, originalData) => {
     const data = {type: 'unknown', message: '', ...originalData};
@@ -146,6 +149,6 @@ app.on('activate', () => {
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
   mainWindow = createMainWindow();
+  app.setAppUserModelId('Mattermost.desktop_poc');
 });
 
-app.setAppUserModelId('Mattermost.desktop_poc');
