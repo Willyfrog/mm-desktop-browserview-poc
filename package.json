@@ -53,10 +53,10 @@
   },
   "build": {
     "productName": "Desktop PoC",
-    "appId": "mattermost.dpoc",
+    "appId": "Mattermost.desktop_poc",
     "win": {
       "target":  [{
-        "target": "msi",
+        "target": "nsis",
         "arch": [
           "x64",
           "ia32"

@@ -7,6 +7,8 @@ import {format as formatUrl} from 'url';
 
 import {app, BrowserWindow, ipcMain, Notification} from 'electron';
 
+//import {ToastNotification} from 'electron-windows-notifications';
+
 import contextMenu from 'electron-context-menu';
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 
@@ -17,6 +19,8 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow;
 const notificationList = []; // let's try to keep track of notifications
+
+const ELECTRON_APP_ID = 'Mattermost.desktop_poc';
 
 function createMainWindow() {
   contextMenu();
@@ -113,6 +117,12 @@ function createMainWindow() {
 
   notificationList.push(n);
 
+  // const tn = new ToastNotification({
+  //   appId: ELECTRON_APP_ID,
+  //   template: `<toast><visual><binding template="ToastText01"><text id="1">%s</text></binding></visual></toast>`,
+  //   strings: ['this is a sample toast notification'],
+  // });
+
   // handle messages from webapp
   ipcMain.on('webcontentsMessage', (_event, origin, originalData) => {
     const data = {type: 'unknown', message: '', ...originalData};
@@ -149,6 +159,6 @@ app.on('activate', () => {
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
   mainWindow = createMainWindow();
-  app.setAppUserModelId('Mattermost.desktop_poc');
+  app.setAppUserModelId(ELECTRON_APP_ID);
 });
 
