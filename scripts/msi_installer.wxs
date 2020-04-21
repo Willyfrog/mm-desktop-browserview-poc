@@ -71,7 +71,7 @@
               <Condition><![CDATA[ADDSTARTMENUSHORTCUT = "true"]]></Condition>
               <RegistryValue Id="RegShortcutStartMenu" Root="HKCU" Key="SOFTWARE\Dpoc\Desktop\settings" Name="DpocDesktopShortcutStartMenu" Value="1" Type="integer" KeyPath="yes" />
               <Shortcut Id="DpocDesktopShortcutStartMenu" Directory="ProgramMenuDir" Name="Dpoc" WorkingDirectory="INSTALLDIR" Icon="Dpoc.ico" IconIndex="0" Advertise="no" Target="[INSTALLDIR]desktop_poc.exe">
-                <ShortcutProperty Key="System.AppUserModel.ID" Value="Dpoc.Desktop" />
+                <ShortcutProperty Key="System.AppUserModel.ID" Value="Mattermost.desktop_poc" />
                 <ShortcutProperty Key="System.AppUserModel.ToastActivatorCLSID" Value="{082F98DC-8BD8-4771-9D01-3A75930884D1}">
                 </ShortcutProperty>
               </Shortcut>
@@ -994,5 +994,7 @@ The [Installer] will complete the installation of [ProductName] on your computer
     <Binary Id="ModifyIcon" SourceFile="../resources/windows/msi_modify.ico" />
     <Binary Id="RepairIcon" SourceFile="../resources/windows/msi_repair.ico" />
     <Binary Id="RemoveIcon" SourceFile="../resources/windows/msi_remove.ico" />
+    <Property Id="ComponentDownload">https://releases.dpoc.com/desktop/0.0.0/dpoc-desktop-0.0.0-$(var.Platform).msi</Property>
+    <Property Id="ComponentDownload">https://releases.dpoc.com/desktop/0.0.0/dpoc-desktop-0.0.0-$(var.Platform).msi</Property>
   </Product>
 </Wix>

@@ -52,7 +52,7 @@
     }
   },
   "build": {
-    "productName": "Desktop PoC",
+    "productName": "desktop_poc",
     "appId": "Mattermost.desktop_poc",
     "win": {
       "target":  [{
