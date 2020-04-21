@@ -59,7 +59,7 @@
       <RegistrySearch Id="DetermineInstallLocation" Type="raw" Root="HKLM" Key="Software\Dpoc\Desktop" Name="InstallLocation" Win64="$(var.Win64)" />
     </Property>
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="$(var.ProgramFilesVersion)" Name="PFiles">
+      <!-- <Directory Id="$(var.ProgramFilesVersion)" Name="PFiles">
         <Directory Id="DpocFolder" Name="Dpoc">
           <Directory Id="INSTALLDIR" Name="Desktop">
             <Component Id="MainExecutableShortcutDesktop" Guid="9C71385D-C892-48BA-A35D-D89A661D2952" Win64="$(var.Win64)">
@@ -78,7 +78,7 @@
             </Component>
           </Directory>
         </Directory>
-      </Directory>
+      </Directory> -->
       <Directory Id="ProgramMenuFolder" Name="Programs">
         <Directory Id="ProgramMenuDir" Name="Dpoc" />
       </Directory>
@@ -92,7 +92,7 @@
     src.: https://web.archive.org/web/20181104151047/https://helgeklein.com/blog/2014/09/real-world-example-wix-msi-application-installer/
     -->
       <Component Id="RegInstallLocation" Guid="BF67264A-28BB-44FF-A646-F118D814651E">
-        <RegistryKey Root="HKLM" Key="Software\Dpoc\Desktop">
+        <RegistryKey Root="HKLM" Key="Software\Mattermost\Dpoc">
           <RegistryValue Name="InstallLocation" Value="[INSTALLDIR]" Type="string" KeyPath="yes" />
         </RegistryKey>
       </Component>
@@ -110,9 +110,9 @@
       <!-- Using heat to generate file and directory hierarchy
            src.: https://stackoverflow.com/a/26558025/3514658
       -->
-      <ComponentGroupRef Id="DpocDesktopFiles" />
-      <ComponentRef Id="MainExecutableShortcutDesktop" />
-      <ComponentRef Id="MainExecutableShortcutStartMenu" />
+      <!-- <ComponentGroupRef Id="DpocDesktopFiles" />
+      <ComponentRef Id="MainExecutableShortcutDesktop" /> -->
+      <!-- <ComponentRef Id="MainExecutableShortcutStartMenu" /> -->
       <ComponentRef Id="ProgramMenuDir" />
       <ComponentRef Id="RegInstallLocation" />
     </Feature>
