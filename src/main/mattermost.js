@@ -124,10 +124,10 @@ export class Server {
   }
   switchDevTools = () => {
     const wc = this.view.webContents;
-    if (wc.isDevToolsOpened()){
+    if (wc.isDevToolsOpened()) {
       wc.closeDevTools();
     } else {
-      wc.openDevTools({mode: 'detach'};
+      wc.openDevTools({mode: 'detach'});
     }
   }
 }
