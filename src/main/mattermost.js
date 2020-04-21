@@ -122,6 +122,14 @@ export class Server {
     this.view.webContents.sendInputEvent({type: 'char', ...input});
     this.view.webContents.sendInputEvent({type: 'keyUp', ...input});
   }
+  switchDevTools = () => {
+    const wc = this.view.webContents;
+    if (wc.isDevToolsOpened()){
+      wc.closeDevTools();
+    } else {
+      wc.openDevTools({mode: 'detach'};
+    }
+  }
 }
 
 const channelTypes = {

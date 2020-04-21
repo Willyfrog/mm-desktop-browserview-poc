@@ -101,6 +101,10 @@ function createMainWindow() {
         }
         server.sendKeyInputEvent({modifiers, keyCode});
       }
+      if (input.key === 'i' && input.meta && input.control) {
+        const server = getActiveServer(servers);
+        server.switchDevTools();
+      }
     });
 
   // sample notification
@@ -113,6 +117,7 @@ function createMainWindow() {
   n.on('click', () => {
     console.log('user clicked on the notification');
   });
+  console.log('showing initial notification');
   n.show();
 
   notificationList.push(n);
