@@ -164,6 +164,6 @@ app.on('activate', () => {
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
   mainWindow = createMainWindow();
-  app.setAppUserModelId(ELECTRON_APP_ID);
 });
 
+app.setAppUserModelId(ELECTRON_APP_ID);
