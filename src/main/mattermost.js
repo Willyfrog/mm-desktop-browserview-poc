@@ -5,8 +5,10 @@ import path from 'path';
 
 import {BrowserView, app, Notification} from 'electron';
 import contextMenu from 'electron-context-menu';
+import log from 'electron-log';
 
 const TAB_BAR_HEIGHT = 38;
+const notificationList = [];
 
 export class Server {
   constructor(name, serverUrl, browserWin) {
@@ -23,34 +25,34 @@ export class Server {
     this.view = view;
 
     view.webContents.on('dom-ready', () => {
-      console.log('[' + name + '] dom-ready');
+      log.info('[' + name + '] dom-ready');
     });
 
     // explicitly setup the context menu for the contents
     contextMenu({window: view.webContents});
 
     view.webContents.on('did-fail-load', (event, errCode) => {
-      console.log('[' + name + '] [' + errCode + '] failed loading: ' + event + '.');
+      log.info('[' + name + '] [' + errCode + '] failed loading: ' + event + '.');
     });
 
     view.webContents.on('did-finish-load', () => {
-      console.log('[' + name + '] finished loading');
+      log.info('[' + name + '] finished loading');
     });
   }
 
   load = (someURL) => {
     // on a real app we would want to check uf `someURL` is safe
     const loadURL = (typeof someURL === 'undefined') ? `${this.url}` : someURL;
-    console.log(`[${this.name}] Loading ${loadURL}`);
+    log.info(`[${this.name}] Loading ${loadURL}`);
 
     // copying what webview sends
     //const userAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Electron/6.1.7 Safari/537.36 Mattermost/${app.getVersion()}`;
     const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Safari/537.36';
     const loading = this.view.webContents.loadURL(loadURL, {userAgent});
     loading.then((result) => {
-      console.log(`[${this.name}] finished loading ${loadURL}: ${result}`);
+      log.info(`[${this.name}] finished loading ${loadURL}: ${result}`);
     }).catch((err) => {
-      console.log(`[${this.name}] failed loading ${loadURL}: ${err}`);
+      log.info(`[${this.name}] failed loading ${loadURL}: ${err}`);
     });
   }
 
@@ -92,7 +94,7 @@ export class Server {
     switch (type) {
     case 'webapp-ready': {
       // register with the webapp to enable custom integration functionality
-      console.log(`registering into the webapp with version ${app.getVersion()}`);
+      log.info(`registering into the webapp with version ${app.getVersion()}`);
       this.postMessage(
         'register-desktop',
         {
@@ -104,9 +106,10 @@ export class Server {
     case 'dispatch-notification': {
       // this should be a separate module
       const {title, body, channel, teamId, silent} = message;
-      console.log(`notification received: ${title}`);
-      console.log(message);
+      log.info(`notification received: ${title}`);
+      log.info(message);
       sendNotification(title, body, channel, teamId, silent, () => {
+        log.info(`notification clicked, going to ${channel}`);
         this.postMessage('notification-clicked', {channel, teamId});
       });
       break;
@@ -143,10 +146,12 @@ const channelTypes = {
 // this also would allow us to choose between main notifications and renderer process (html5) notifications
 export function sendNotification(title, body, channel, teamId, silent, clickCallback) {
   if (Notification.isSupported()) {
+    const modTitle = `Title is: ${title}`;
     const options = {
-      title,
+      title: modTitle,
       body,
       silent,
+      timeoutType: 'never',
     };
     if (channel) {
       if (channel.type === 'D') {
@@ -155,14 +160,26 @@ export function sendNotification(title, body, channel, teamId, silent, clickCall
         options.subtitle = channelTypes[channel.type];
       }
     }
+    log.info('creating notification with options');
     const n = new Notification(options);
 
-    if (typeof clickCallback !== 'undefined') {
-      n.on('click', clickCallback);
-    }
+    n.on('click', (e) => {
+      // hack: see https://github.com/electron/electron/issues/21610#issuecomment-569857509
+      if (process.platform === 'win') {
+        n.removeAllListeners(['click']);
+      }
+      this.win.show();
+      log.info('notification clicked');
+      if (typeof clickCallback !== 'undefined') {
+        clickCallback(e);
+      }
+    });
+    notificationList.push(n); // without ever removing them, this can cause problems, but this is only a PoC
+    log.info(`notification added to the list: ${notificationList.length}`);
+
     n.show();
   } else {
-    console.log('notifications are not supported');
+    log.info('notifications are not supported');
   }
 }
 
@@ -188,7 +205,7 @@ export function getWindowBoundaries(win) {
 }
 
 function initialLoad(servers) {
-  console.log('loading servers');
+  log.info('loading servers');
   servers.forEach((server, index) => {
     if (index === 0) {
       server.show();

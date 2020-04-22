@@ -3,6 +3,8 @@
 // eslint-disable-next-line import/no-commonjs
 const {ipcRenderer} = require('electron');
 
+console.log('loading preload');
+
 const ignoreList = ['webpackClose', 'webappMessage'];
 
 // this will just pass any message from the app to the ipcMain
@@ -13,6 +15,7 @@ function handleMessage(event) {
     return;
   }
 
+  console.log('got a message to handle in the preload');
   console.log(event);
   ipcRenderer.send('webcontentsMessage', event.origin, event.data);
 }

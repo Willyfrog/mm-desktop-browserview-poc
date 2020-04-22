@@ -21,6 +21,9 @@ export default class POC extends React.PureComponent {
       Notification.requestPermission();
       // eslint-disable-next-line no-new
       const c = new Notification(`selecting tab ${tabIndex}`, {body: 'Selected!'});
+      c.onclick = () => {
+        console.log('switch notification clicked!');
+      };
       console.log('switching tab notification');
       this.notifications.push(c);
     });

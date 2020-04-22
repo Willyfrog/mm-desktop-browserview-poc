@@ -37,8 +37,8 @@ function createMainWindow() {
     ).then(
       (name) => console.log(`Added Extension:  ${name}`),
     ).catch((err) => console.log('An error occurred: ', err));
-    window.webContents.openDevTools();
   }
+  window.webContents.openDevTools({mode: 'undocked'});
 
   if (isDevelopment) {
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
@@ -101,8 +101,9 @@ function createMainWindow() {
         }
         server.sendKeyInputEvent({modifiers, keyCode});
       }
-      if (input.key === 'i' && input.meta && input.control) {
+      if (input.key === 'j' && input.control) {
         const server = getActiveServer(servers);
+        console.log('opening server devtools');
         server.switchDevTools();
       }
     });
@@ -115,7 +116,14 @@ function createMainWindow() {
     timeoutType: 'never',
   });
   n.on('click', () => {
+    // hack: see https://github.com/electron/electron/issues/21610#issuecomment-569857509
+    if (process.platform === 'win') {
+      n.removeAllListeners(['click']);
+    }
     console.log('user clicked on the notification');
+    if (!window.isVisible()) {
+      window.show();
+    }
   });
   console.log('showing initial notification');
   n.show();
