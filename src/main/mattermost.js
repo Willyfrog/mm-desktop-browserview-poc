@@ -14,9 +14,11 @@ export class Server {
   constructor(name, serverUrl, browserWin) {
     this.name = name;
     this.url = new URL(serverUrl);
+    const preload = path.resolve(__dirname, 'preload.js');
+    log.info('preloading from: ' + preload);
     const view = new BrowserView({
       webPreferences: {
-        preload: path.resolve(__dirname, 'preload.js'),
+        preload,
         spellcheck: true,
       },
     });
@@ -41,13 +43,14 @@ export class Server {
   }
 
   load = (someURL) => {
-    // on a real app we would want to check uf `someURL` is safe
+    // on a real app we would want to check if someURL is safe
     const loadURL = (typeof someURL === 'undefined') ? `${this.url}` : someURL;
     log.info(`[${this.name}] Loading ${loadURL}`);
 
     // copying what webview sends
-    //const userAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Electron/6.1.7 Safari/537.36 Mattermost/${app.getVersion()}`;
-    const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Safari/537.36';
+    const userAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Electron/6.1.7 Safari/537.36 Mattermost/${app.getVersion()}`;
+
+    //const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.146 Safari/537.36';
     const loading = this.view.webContents.loadURL(loadURL, {userAgent});
     loading.then((result) => {
       log.info(`[${this.name}] finished loading ${loadURL}: ${result}`);
@@ -109,6 +112,7 @@ export class Server {
       log.info(`notification received: ${title}`);
       log.info(message);
       sendNotification(title, body, channel, teamId, silent, () => {
+        this.win.show();
         log.info(`notification clicked, going to ${channel}`);
         this.postMessage('notification-clicked', {channel, teamId});
       });
@@ -146,10 +150,11 @@ const channelTypes = {
 // this also would allow us to choose between main notifications and renderer process (html5) notifications
 export function sendNotification(title, body, channel, teamId, silent, clickCallback) {
   if (Notification.isSupported()) {
-    const modTitle = `Title is: ${title}`;
+    const modTitle = 'Title is: ' + title;
+    const modBody = 'Body is: ' + body;
     const options = {
       title: modTitle,
-      body,
+      body: modBody,
       silent,
       timeoutType: 'never',
     };
@@ -168,7 +173,6 @@ export function sendNotification(title, body, channel, teamId, silent, clickCall
       if (process.platform === 'win') {
         n.removeAllListeners(['click']);
       }
-      this.win.show();
       log.info('notification clicked');
       if (typeof clickCallback !== 'undefined') {
         clickCallback(e);

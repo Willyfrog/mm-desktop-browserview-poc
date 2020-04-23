@@ -1,7 +1,7 @@
 {
   "name": "desktop_poc",
   "description": "Desktop BrowserView proof of concept",
-  "version": "0.0.0",
+  "version": "5.0.0",
   "license": "MIT",
   "scripts": {
     "dev": "electron-webpack dev",

@@ -62,8 +62,10 @@ function createMainWindow() {
   });
 
   const serverConfig = [
-    {name: 'community', serverUrl: 'https://community-release.mattermost.com'},
-    {name: 'test', serverUrl: 'https://mysql.test.mattermost.com'},
+    {name: 'community', serverUrl: 'https://community-daily.mattermost.com'},
+    {name: 'test', serverUrl: 'http://10.211.55.2:8065'},
+
+    // {name: 'mysql', serverUrl: 'https://mysql.test.mattermost.com'},
     {name: 'taco', serverUrl: 'https://subpath.test.mattermost.com'},
   ];
 

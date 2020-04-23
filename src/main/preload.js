@@ -24,7 +24,7 @@ window.addEventListener('message', handleMessage);
 
 // this function just gets the message from ipcMain and echoes it to the webapp
 function sendMessage(event, msgType, msgData) {
-  console.log(`sending message to webapp ${msgType}`);
+  console.log('sending message to webapp ' + msgType);
   window.postMessage({
     type: msgType,
     message: msgData,
