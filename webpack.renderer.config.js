@@ -24,3 +24,9 @@ module.exports = {
       extensions: ['.js', 'jsx']
     }
 };
+/* eslint-enable import/no-commonjs */
+/* eslint-enable comma-dangle */
+/* eslint-enable quotes */
+/* eslint-enable indent */
+/* eslint-enable semi */
+/* eslint-enable func-names */

@@ -5,7 +5,7 @@
     "plugin:eslint-comments/recommended"
   ],
   "plugins": [
-    "mattermost",
+    "mattermost"
   ],
   "parserOptions": {
     "ecmaVersion": 2017

@@ -82,6 +82,7 @@ function createMainWindow() {
 
   const serverConfig = [
     {name: 'community', serverUrl: 'https://community-daily.mattermost.com'},
+
     //{name: 'test', serverUrl: 'http://10.211.55.2:8065'},
 
     {name: 'rc', serverUrl: 'https://rc.test.mattermost.com'},
