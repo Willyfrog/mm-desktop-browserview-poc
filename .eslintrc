@@ -1,7 +1,11 @@
 {
   "extends": [
     "./.eslintrc-webapp.json",
+    "plugin:mattermost/react",
     "plugin:eslint-comments/recommended"
+  ],
+  "plugins": [
+    "mattermost",
   ],
   "parserOptions": {
     "ecmaVersion": 2017

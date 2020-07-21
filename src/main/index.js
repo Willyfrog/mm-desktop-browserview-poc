@@ -7,6 +7,8 @@ import {format as formatUrl} from 'url';
 
 import {app, BrowserWindow, ipcMain, Notification} from 'electron';
 
+import {HKEY, enumerateValues, RegistryValueType} from 'registry-js';
+
 //import {ToastNotification} from 'electron-windows-notifications';
 
 import contextMenu from 'electron-context-menu';
@@ -24,6 +26,23 @@ const ELECTRON_APP_ID = 'Mattermost.desktop_poc';
 
 function createMainWindow() {
   contextMenu();
+
+  if (process.platform === 'win32') {
+    const version = enumerateValues(
+      HKEY.HKEY_LOCAL_MACHINE,
+      'SOFTWARE\\Microsoft\\Windows\\CurrentVersion',
+    );
+    for (const value of version) {
+      if (value.type === RegistryValueType.REG_SZ) {
+        const stringData = value.data;
+        console.log(`Found: ${value.name} is ${stringData}`);
+      } else if (value.type === RegistryValueType.REG_DWORD) {
+        // 32-bit number is converted into a JS number
+        const numberData = value.data;
+        console.log(`Found: ${value.name} is ${numberData}`);
+      }
+    }
+  }
 
   const window = new BrowserWindow({
     webPreferences: {
@@ -63,9 +82,9 @@ function createMainWindow() {
 
   const serverConfig = [
     {name: 'community', serverUrl: 'https://community-daily.mattermost.com'},
-    {name: 'test', serverUrl: 'http://10.211.55.2:8065'},
+    //{name: 'test', serverUrl: 'http://10.211.55.2:8065'},
 
-    // {name: 'mysql', serverUrl: 'https://mysql.test.mattermost.com'},
+    {name: 'rc', serverUrl: 'https://rc.test.mattermost.com'},
     {name: 'taco', serverUrl: 'https://subpath.test.mattermost.com'},
   ];
 

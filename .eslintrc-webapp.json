@@ -1,7 +1,7 @@
 {
   "extends": [
-    "./node_modules/eslint-config-mattermost/.eslintrc.json",
-    "./node_modules/eslint-config-mattermost/.eslintrc-react.json",
+    "./node_modules/eslint-plugin-mattermost/configs/.eslintrc.json",
+    "./node_modules/eslint-plugin-mattermost/configs/.eslintrc-react.json",
     "plugin:cypress/recommended"
   ],
   "plugins": [
